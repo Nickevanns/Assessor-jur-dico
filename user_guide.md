@@ -85,7 +85,7 @@ O assistente processará o texto, buscará referências relevantes na base de co
 
 Esperamos que este assistente seja uma ferramenta útil em seu trabalho! Para dúvidas ou sugestões, entre em contato com o desenvolvedor.
 
-**Autor:** Manus AI
+**Autor:** NICKEVANNS
 **Data:** 8 de agosto de 2025
 
 
