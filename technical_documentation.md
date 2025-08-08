@@ -119,7 +119,7 @@ Este projeto é uma prova de conceito para um assistente de IA jurídico. Para t
 *   **Integração Real com APIs:** Buscar parcerias ou desenvolver web scrapers robustos e legais para manter a base de jurisprudência atualizada automaticamente.
 *   **Validação por Especialistas:** Submeter as análises e documentos gerados à validação de juristas para garantir a precisão e a conformidade legal.
 
-**Autor:** Manus AI
+**Autor:** NIKEVANNS
 **Data:** 8 de agosto de 2025
 
 
