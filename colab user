@@ -1,0 +1,275 @@
+import json
+import re
+import random
+from datetime import datetime, timedelta
+from typing import List, Dict, Any, Optional
+
+# --- Simulação de Ferramentas e Bibliotecas ---
+# Estas classes simulam as APIs e integrações externas.
+
+class PJeSim:
+    """
+    Simula a ferramenta de integração com o PJe.
+    Retorna peças processuais em texto estruturado com base no número do processo.
+    """
+    
+    def buscar_processo(self, numero_cnj: str) -> Dict[str, Any]:
+        """
+        Simula a busca por peças processuais no PJe.
+        """
+        print(f"**Ferramenta interna BUSCA PROCESSUAL (PJe) acionada.**")
+        print(f"Buscando as seguintes peças para o processo {numero_cnj}:")
+        
+        pecas_necessarias = [
+            "Embargos de Declaração interpostos",
+            "Contrarrazões aos embargos (se houver)",
+            "Sentença ou decisão embargada",
+            "Petição Inicial",
+            "Contestação"
+        ]
+        
+        for peca in pecas_necessarias:
+            print(f"- {peca}")
+            
+        print("...")
+        
+        # Verifica o formato do número CNJ
+        if not re.match(r"^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$", numero_cnj):
+            return {"erro": "Formato de número CNJ inválido. Por favor, use o formato 0001234-56.2023.5.01.0001."}
+
+        # Simula a extração das peças processuais
+        pecas = {
+            "embargos_declaracao": "EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A) DA ...\n\nEMBARGOS DE DECLARAÇÃO\n\nPARTE EMBARGANTE, inconformada com a omissão da r. sentença em relação ao pedido de horas extras e ao adicional de insalubridade, opõe os presentes embargos de declaração.\n\nA sentença foi omissa ao não se manifestar sobre o laudo pericial que concluiu pela insalubridade em grau médio. Além disso, a decisão não analisou a prova testemunhal que confirmou a jornada de 10 horas diárias.",
+            "contrarrazoes_embargos": "EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A) DA ...\n\nCONTRARRAZÕES AOS EMBARGOS DE DECLARAÇÃO\n\nPARTE EMBARGADA, por seu advogado, vem apresentar contrarrazões, haja vista a inexistência de omissão na decisão de mérito. O juízo analisou devidamente a prova dos autos, e a rejeição dos pedidos se deu por falta de elementos suficientes para sua comprovação, não havendo que se falar em omissão ou obscuridade. O laudo pericial não foi homologado, e a prova testemunhal foi contraditória.",
+            "sentenca": "I - RELATÓRIO\n\nTrata-se de reclamação trabalhista em que o reclamante pleiteia o pagamento de horas extras, adicional de insalubridade, dentre outros pedidos. Houve regular instrução, com a realização de prova pericial e a oitiva de testemunhas.\n\nII - FUNDAMENTAÇÃO\n\nAdicional de Insalubridade: O pedido é improcedente. Embora a perícia tenha concluído pela insalubridade, a reclamada trouxe provas que descaracterizam a exposição, como o fornecimento de EPIs. Rejeito o pedido de insalubridade.\n\nHoras Extras: Não se desincumbiu o reclamante do ônus de provar a jornada extraordinária, de modo que o pedido é improcedente. A prova testemunhal não foi suficiente para comprovar a jornada alegada na inicial. Rejeito o pedido de horas extras e seus reflexos.\n\nIII - DISPOSITIVO\n\nPelo exposto, decido julgar IMPROCEDENTES os pedidos formulados na inicial.",
+            "peticao_inicial": "EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A) DA ...\n\nRECLAMAÇÃO TRABALHISTA\n\nRECLAMANTE..., vem a presença de Vossa Excelência propor a presente ação, pelos fatos e fundamentos a seguir:\n\n1. O reclamante trabalhava em condições insalubres, exposto a agentes químicos sem a devida proteção. Requer o pagamento de adicional de insalubridade.\n\n2. O reclamante trabalhava das 08:00 às 20:00, de segunda a sexta, com apenas 30 minutos de intervalo, totalizando 10 horas extras por semana. A reclamada não pagava as horas extras devidas. Em razão disso, requer o pagamento de 10 horas extras por semana...",
+            "contestacao": "EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A) DA ...\n\nCONTESTAÇÃO\n\nA reclamada informa que o reclamante sempre trabalhou em ambiente seguro, com a devida proteção. Ademais, nega veementemente as alegações de jornada extraordinária. Em todo caso, impugna os pedidos de horas extras e insalubridade."
+        }
+
+        print("Peças processuais extraídas com sucesso.")
+        return pecas
+
+class JurisSim:
+    """
+    Simula a ferramenta de busca de jurisprudência.
+    Retorna uma lista de documentos de jurisprudência (acórdãos, súmulas, etc.).
+    """
+    
+    def search(self, queries: List[str]) -> str:
+        """
+        Simula a busca por jurisprudência com base nos parâmetros da query.
+        """
+        query_str = " ".join(queries)
+        print(f"**Ferramenta de busca de jurisprudência acionada.**")
+        print(f"Parâmetros de Entrada: {query_str}")
+        
+        # Identifica os termos de busca para gerar resultados relevantes
+        termos_chave = re.findall(r"\[\"(.*?)\"\]", query_str)
+        
+        documentos = self._gerar_documentos_simulados(termos_chave)
+        
+        return self._formatar_resposta_busca(documentos)
+
+    def _gerar_documentos_simulados(self, termos: List[str], num_docs: int = 15) -> List[Dict[str, Any]]:
+        """Gera documentos de jurisprudência simulados."""
+        tipos_doc = [
+            "acórdãos", "sentenças", "adm. de recurso de revista", "precedentes",
+            "arginc", "iac", "irdr", "iuj", "iur", "ojs", "stj_rer", "irr",
+            "stf_rg_cc", "súmulas", "tesesJuridicas"
+        ]
+        tribunais = ["TST", "STF", "STJ"]
+        magistrados = ["Min. [Nome]", "Des. [Nome]"]
+        
+        documentos = []
+        for i in range(num_docs):
+            doc_id = i + 1
+            tipo = random.choice(tipos_doc)
+            tribunal = random.choice(tribunais)
+            magistrado = random.choice(magistrados)
+            data_juntada = datetime.now() - timedelta(days=random.randint(1, 1000))
+            
+            ementa_base = "HORAS EXTRAS. JORNADA DE TRABALHO. ÔNUS DA PROVA. SÚMULA 338 DO TST."
+            
+            trechos_base = [
+                "EMENTA: RECURSO DE REVISTA. HORAS EXTRAS. ÔNUS DA PROVA. JUNTADA PARCIAL DOS CARTÕES DE PONTO. A Súmula 338, I, do TST presume relativa a veracidade da jornada alegada na inicial, sendo incumbência do empregador apresentar os controles de ponto. A não juntada de todos os cartões de ponto de forma injustificada, ou a apresentação de documentos ilegíveis, gera a inversão do ônus da prova.",
+                "O artigo 818 da CLT e o artigo 373 do CPC distribuem o ônus da prova entre as partes. Na Justiça do Trabalho, a prova da jornada de trabalho é do empregador.",
+                "Adicional de Insalubridade. Laudo pericial não vincula a decisão do juiz. O juiz pode julgar com base em outras provas nos autos, como a testemunhal, que pode infirmar a conclusão do laudo pericial. Inteligência do art. 479 do CPC."
+            ]
+
+            documentos.append({
+                "id": doc_id,
+                "data_juntada": data_juntada.strftime("%d/%m/%Y"),
+                "tipo": tipo,
+                "tribunal": tribunal,
+                "magistrado": magistrado,
+                "ementa": f"{ementa_base} ({doc_id})",
+                "trechos_destacados": random.sample(trechos_base, 1),
+                "referencia_legal_simulada": f"Súmula 338, I, do TST. Art. 818 da CLT. Art. 479 do CPC."
+            })
+        
+        return documentos
+
+    def _formatar_resposta_busca(self, documentos: List[Dict[str, Any]]) -> str:
+        """Formata os resultados da busca em uma string clara."""
+        resposta_formatada = "### Resultados da Busca de Jurisprudência\n"
+        
+        # Cabeçalho com títulos e ementas
+        resposta_formatada += "#### Documentos Encontrados:\n"
+        for doc in documentos:
+            resposta_formatada += f"[{doc['id']}] - **{doc['tipo'].upper()}** do {doc['tribunal']} - {doc['data_juntada']}\n"
+            resposta_formatada += f"**Ementa:** {doc['ementa']}\n"
+            
+        return resposta_formatada
+
+# --- Classe Central - O Assistente de IA ---
+class AssistenteJuridicoIA:
+    """
+    Orquestra as operações do assistente, interagindo com as ferramentas e gerando as respostas.
+    """
+    def __init__(self):
+        self.pje = PJeSim()
+        self.juris_search = JurisSim()
+        self.dados_processo: Optional[Dict[str, Any]] = None
+        self.status = "AGUARDANDO_PROCESSO"
+
+    def iniciar_interacao(self):
+        """Inicia a interação com o usuário."""
+        print("--- Assistente de IA Jurídico ---")
+        print("Olá! Para que eu possa começar, por favor, me informe o número do processo no formato CNJ completo (exemplo: 0001234-56.2023.5.01.0001):")
+
+        while self.status == "AGUARDANDO_PROCESSO":
+            numero_cnj = input("> ")
+            if numero_cnj.lower() == 'sair':
+                print("Até a próxima! Estou à disposição para novas análises.")
+                return
+
+            self.dados_processo = self.pje.buscar_processo(numero_cnj)
+            
+            if "erro" in self.dados_processo:
+                print(f"Erro: {self.dados_processo['erro']}\nPor favor, tente novamente ou digite 'sair' para encerrar.")
+                self.dados_processo = None
+            else:
+                print("\nPeças processuais extraídas com sucesso. O que você gostaria que eu fizesse?")
+                print("Opções:")
+                print("1. Minutar uma peça jurídica (ex: 'minutar um recurso')")
+                print("2. Fazer uma análise jurídica (ex: 'analisar a sentença')")
+                print("3. Minutar um voto (ex: 'minutar um voto')")
+                self.status = "PRONTO_PARA_ANALISE"
+                self._fluxo_analise()
+
+    def _fluxo_analise(self):
+        """Gerencia o fluxo de análise e geração de texto."""
+        while self.status == "PRONTO_PARA_ANALISE":
+            solicitacao = input("Qual sua solicitação? ")
+            if "minutar" in solicitacao.lower():
+                self._minutar_voto()
+                self.status = "AGUARDANDO_PROCESSO"
+                self.iniciar_interacao()
+            elif "analisar" in solicitacao.lower():
+                self._realizar_analise_juridica()
+                self.status = "AGUARDANDO_PROCESSO"
+                self.iniciar_interacao()
+            elif solicitacao.lower() == 'sair':
+                print("Até a próxima! Estou à disposição para novas análises.")
+                return
+            else:
+                print("Desculpe, não entendi. Por favor, escolha uma das opções ou digite 'sair' para encerrar.")
+
+    def _realizar_analise_juridica(self):
+        """Executa a análise jurídica e gera a resposta."""
+        print("\n**Assistente**: Para uma análise precisa, preciso de mais detalhes.")
+        tema_busca = input("Qual o tema principal da análise (ex: 'jornada de trabalho', 'dano moral')?: ")
+        
+        # Aciona a ferramenta de busca de jurisprudência
+        self.juris_search.search(queries=[f"['{tema_busca}']", f"tipo_documento='súmulas','ojs'"])
+        print("\n**Assistente**: Analisando os documentos do processo e a jurisprudência relevante.")
+        
+        # Simula a geração da análise pelo LLM
+        analise_gerada = self._gerar_analise_llm(tema_busca)
+        
+        print("\n--- ANÁLISE JURÍDICA ---")
+        print(analise_gerada)
+        print("-------------------------\n")
+        print("Análise concluída. Posso ajudar em algo mais?")
+        self.status = "PRONTO_PARA_ANALISE"
+
+    def _minutar_voto(self):
+        """Simula a minutagem de um voto."""
+        print("\n**Assistente**: Minutando um voto com base nas peças processuais extraídas.")
+        
+        # Extrai os temas dos documentos simulados para a busca (horas extras e insalubridade)
+        tema_voto = ["horas extras", "adicional de insalubridade"]
+        
+        # Aciona a ferramenta de busca
+        self.juris_search.search(queries=[f"['{tema_voto[0]}','{tema_voto[1]}']", "tribunal='TST'", "tipo_documento='acórdãos'"])
+        print("\n**Assistente**: Minutando o voto com base nos documentos e jurisprudência.")
+
+        # Simula a geração do voto pelo LLM
+        voto_minutado = self._gerar_voto_llm()
+        
+        print("\n--- MINUTA DE VOTO ---")
+        print(voto_minutado)
+        print("----------------------\n")
+        print("Voto minutado com sucesso. Posso ajudar em algo mais?")
+        self.status = "PRONTO_PARA_ANALISE"
+
+    def _gerar_analise_llm(self, termo: str) -> str:
+        """Simula a geração de uma análise pelo LLM, usando o contexto."""
+        
+        sentenca = self.dados_processo.get("sentenca", "")
+        embargos = self.dados_processo.get("embargos_declaracao", "")
+
+        analise = f"""
+        Prezado(a),
+
+        Com base nos documentos do processo e na jurisprudência consultada, segue a análise:
+
+        **Ponto Jurídico:** A controvérsia se concentra na **omissão** da sentença em relação a dois pontos principais: a validade do laudo pericial para o adicional de insalubridade e a suficiência da prova testemunhal para as horas extras.
+
+        **Análise:** A sentença julgou improcedente o pedido de insalubridade [1], mesmo com a existência de um laudo pericial favorável ao reclamante. Isso levanta um ponto de discordância com a jurisprudência, pois o magistrado, embora não esteja obrigado a seguir o laudo, deve fundamentar sua decisão de forma clara.
+
+        Em relação às horas extras, a sentença afirmou que a prova testemunhal não foi suficiente. No entanto, os embargos de declaração [2] apontam que a decisão não considerou integralmente a prova produzida. Tal omissão, se confirmada, pode ser sanada em sede de embargos.
+
+        **Referências Legais e Jurisprudenciais:**
+        - Art. 818 da CLT
+        - Art. 479 do CPC
+        - Jurisprudência sobre a valoração da prova (como acórdãos sobre a livre convicção do juiz).
+
+        **Conclusão:** Os embargos de declaração apresentam pontos jurídicos relevantes que questionam a fundamentação da sentença. A análise da jurisprudência de tribunais como o TST é crucial para determinar a probabilidade de provimento do recurso, visto que há entendimento consolidado sobre o ônus da prova e a força do laudo pericial.
+        """
+        
+        return analise.strip()
+
+    def _gerar_voto_llm(self) -> str:
+        """Simula a minutagem de um voto pelo LLM."""
+        
+        embargos = self.dados_processo.get("embargos_declaracao", "")
+        sentenca = self.dados_processo.get("sentenca", "")
+
+        voto = f"""
+        ---
+        VOTO
+
+        **I. RELATÓRIO**
+        Trata-se de embargos de declaração opostos pelo reclamante contra a r. sentença. O embargante alega a omissão da decisão em relação aos pedidos de adicional de insalubridade e horas extras.
+
+        **II. FUNDAMENTAÇÃO**
+        A irresignação do embargante merece ser parcialmente acolhida.
+        De fato, a r. sentença foi omissa ao não se pronunciar sobre o laudo pericial que concluiu pela exposição a agentes insalubres. A matéria é de extrema importância e sua omissão impede o correto exercício do duplo grau de jurisdição.
+
+        A jurisprudência do TST [1] entende que o laudo pericial, embora não seja vinculativo, deve ser devidamente considerado pelo juízo, com a apresentação de motivos claros para sua rejeição, o que não ocorreu na sentença embargada.
+
+        Quanto às horas extras, a sentença não apresentou omissão, tendo em vista que julgou o pedido com base na ausência de prova robusta.
+
+        **III. DISPOSITIVO**
+        Diante do exposto, **conheço dos embargos de declaração e, no mérito, dou-lhes parcial provimento** para sanar a omissão e determinar o retorno dos autos à primeira instância para que seja proferida nova sentença, com a devida análise da prova pericial.
+
+        É como voto.
+        """
+        
+        return voto.strip()
+
+# --- Execução do Assistente ---
+if __name__ == "__main__":
+    assistente = AssistenteJuridicoIA()
+    assistente.iniciar_interacao()
